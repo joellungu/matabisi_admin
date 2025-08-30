@@ -115,7 +115,7 @@ class _EntrepriseFormPageState extends State<CatProduits> {
         children: [
           // Sidebar style WhatsApp
           Container(
-            width: 260,
+            width: 280,
             color: const Color(0xFF111B21),
             padding: const EdgeInsets.all(10),
             child: Column(
@@ -181,25 +181,44 @@ class _EntrepriseFormPageState extends State<CatProduits> {
                                 ),
                               ),
                               subtitle: Text(
-                                "${e['point']} Pts",
+                                "${e['point']} Pts  ${e['status'] == 1 ? 'Activé' : 'desactivé'}",
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 10,
                                   color: Colors.green,
                                 ),
                               ),
-                              trailing: Obx(
-                                () => Container(
-                                  height: 6,
-                                  width: 6,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(3),
-                                    color:
-                                        pc == index.value
-                                            ? Colors.red.shade700
-                                            : const Color(0xFF111B21),
-                                  ),
-                                ),
+                              trailing: PopupMenuButton(
+                                onSelected: (s) {
+                                  //
+                                  if (s == 1) {
+                                    //
+                                    entrepriseController.supprimerProduit(
+                                      e['id'],
+                                    );
+                                  } else {
+                                    //
+                                    entrepriseController.changerStatusProduit(
+                                      e['id'],
+                                      e['status'] == 1 ? 0 : 1,
+                                    );
+                                  }
+                                },
+                                itemBuilder: (context) {
+                                  return [
+                                    PopupMenuItem(
+                                      value: 1,
+                                      child: Text("Supprimer"),
+                                    ),
+                                    PopupMenuItem(
+                                      value: 2,
+                                      child:
+                                          e['status'] == 1
+                                              ? Text("Suspendre")
+                                              : Text("Activer"),
+                                    ),
+                                  ];
+                                },
                               ),
                             ),
                           );

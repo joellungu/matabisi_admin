@@ -12,6 +12,8 @@ class SuperAdminController extends GetxController {
   //
   Requete requete = Requete();
   //
+  RxList entreprises = [].obs;
+  //
   var box = GetStorage();
   //
   enregistrerEntreprise(Map ent) async {
@@ -61,6 +63,7 @@ class SuperAdminController extends GetxController {
           //
           print("SUCCES: ${response.statusCode}");
           print("SUCCES: ${response.body}");
+          //
           //Get.back();
           Get.snackbar("Succès", "Authentification reussi.");
           Get.offAll(AccueilEntreprise());
@@ -79,5 +82,75 @@ class SuperAdminController extends GetxController {
       Get.back();
       Get.snackbar("Erreur", "L'enregistrement n'a pas était éffectué.");
     }
+  }
+
+  //
+  Future<List> getAllEntreprises() async {
+    //
+    Map user = box.read("user") ?? {};
+    //
+    http.Response response = await requete.getEe(
+      "api/Entreprise/all",
+      user['token'],
+    );
+    //
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      //
+      print("SUCCES: ${response.statusCode}");
+      print("SUCCES: ${response.body}");
+      entreprises.value = jsonDecode(response.body);
+      return jsonDecode(response.body);
+    } else {
+      print("ERREUR: ${response.statusCode}");
+      print("ERREUR: ${response.body}");
+      return [];
+    }
+  }
+
+  //
+  supprimerProduit(int id) async {
+    //
+    http.Response response = await requete.deleteE(
+      "api/Entreprise/$id",
+      //user['token'],
+    );
+    //
+    if (response.statusCode == 200 ||
+        response.statusCode == 201 ||
+        response.statusCode == 202 ||
+        response.statusCode == 203 ||
+        response.statusCode == 204) {
+      Get.snackbar("Succès", "L'entreprise a été supprimé.");
+      getAllEntreprises();
+    } else {
+      print("ERREUR: ${response.statusCode}");
+      print("ERREUR: ${response.body}");
+      Get.snackbar("Oups", "Nous n'avons pas pu supprimer l'entreprise");
+    }
+    //
+  }
+
+  //
+  changerStatusProduit(int id, int status) async {
+    //
+    http.Response response = await requete.putEs(
+      "api/Entreprise/status/$id",
+      status,
+      //user['token'],
+    );
+    //
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      Get.snackbar(
+        "Succès",
+        "L'entreprise a été ${status == 1 ? 'Activé' : 'Desactivé'}.",
+      );
+      getAllEntreprises();
+    } else {
+      Get.snackbar(
+        "Oups",
+        "Nous n'avons pas pu  ${status == 1 ? 'Activé' : 'Desactivé'} cette entreprise.",
+      );
+    }
+    //
   }
 }

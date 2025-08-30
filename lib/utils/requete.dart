@@ -3,7 +3,7 @@ import 'package:get/get.dart' as g;
 import 'package:http/http.dart' as http;
 
 class Requete extends g.GetConnect {
-  static String url = "http://192.168.11.106:8080";
+  static String url = "http://192.168.11.103:8080";
   Future<http.Response> getE(String path) async {
     var response = await http.get(Uri.parse("$url/$path"));
     return response;
@@ -41,6 +41,18 @@ class Requete extends g.GetConnect {
       Uri.parse("$url/$path"),
       headers: {"Accept": "*/*", "Content-Type": "application/json"},
       body: json.encode(e),
+    );
+    return response;
+  }
+
+  Future<http.Response> putEs(String path, int e) async {
+    //print(await http.read(Uri.https('$url/$path', 'foobar.txt')));
+    print('e: $e');
+
+    var response = await http.put(
+      Uri.parse("$url/$path"),
+      headers: {"Accept": "*/*", "Content-Type": "application/json"},
+      body: jsonEncode(e),
     );
     return response;
   }

@@ -69,6 +69,7 @@ class _EntrepriseFormPageState extends State<EntrepriseFormPage> {
         "nom": nom,
         "secteur": selectedEntreprise!, // ex: cosmétique, télécom, boulangerie
         "email": email,
+        "status": 1,
         "motDePasse": "1234567",
       };
       //
@@ -172,7 +173,7 @@ class _EntrepriseFormPageState extends State<EntrepriseFormPage> {
                                       (val) => nom = val!,
                                       initial: nom,
                                     ),
-                                    const SizedBox(height: 15),
+                                    // const SizedBox(height: 15),
                                     // _textField(
                                     //   "Secteur",
                                     //   (val) => secteur = val!,

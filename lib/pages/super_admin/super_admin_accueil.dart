@@ -1,5 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:matabisi_admin/pages/super_admin/nouvelle_entreprise2.dart';
+import 'package:matabisi_admin/pages/super_admin/super_admin_controller.dart';
+import 'package:http/http.dart' as http;
+import 'package:matabisi_admin/utils/requete.dart';
 
 class AdminDashboard extends StatefulWidget {
   @override
@@ -13,6 +19,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
     UsersPage(),
     PurchasesPage(),
   ];
+  //
+  Requete requete = Requete();
+  //
+  SuperAdminController superAdminController = Get.find();
 
   void _onItemTapped(int index) {
     setState(() {
@@ -150,8 +160,31 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         ),
                       ),
                       SizedBox(height: 10),
-                      _buildStatItem('Entreprises', '12'),
-                      _buildStatItem('Utilisateurs', '1,542'),
+                      _buildStatItem('Taux', '10 Pts = 0.1 \$'),
+                      Obx(
+                        () => _buildStatItem(
+                          'Entreprises',
+                          '${superAdminController.entreprises.length}',
+                        ),
+                      ),
+                      //_buildStatItem('Utilisateurs', '1,542'),
+                      FutureBuilder(
+                        future: getAllUtilisateurs(),
+                        builder: (c, t) {
+                          //
+                          if (t.hasData) {
+                            int compteEnt = t.data as int;
+                            //
+                            return _buildStatItem(
+                              'Utilisateurs',
+                              '$compteEnt Uts',
+                            );
+                          } else if (t.hasError) {
+                            return _buildStatItem('Utilisateurs', '0 Uts');
+                          }
+                          return _buildStatItem('Utilisateurs', '-0 Uts');
+                        },
+                      ),
                       _buildStatItem('Achats aujourd\'hui', '247'),
                     ],
                   ),
@@ -165,6 +198,26 @@ class _AdminDashboardState extends State<AdminDashboard> {
         ],
       ),
     );
+  }
+
+  //
+  Future<int> getAllUtilisateurs() async {
+    //
+    http.Response response = await requete.getE(
+      "api/Client/nombre",
+      //user['token'],
+    );
+    //
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      //
+      print("SUCCES: ${response.statusCode}");
+      print("SUCCES: ${response.body}");
+      return jsonDecode(response.body);
+    } else {
+      print("ERREUR: ${response.statusCode}");
+      print("ERREUR: ${response.body}");
+      return 0;
+    }
   }
 
   Widget _buildSidebarItem(IconData icon, String title, int index) {

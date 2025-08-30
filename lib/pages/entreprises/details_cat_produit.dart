@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:matabisi_admin/pages/entreprises/entreprise_controller.dart';
+import 'package:matabisi_admin/pages/entreprises/produits.dart';
 import 'package:matabisi_admin/pages/super_admin/liste_entreprise.dart';
 import 'package:matabisi_admin/pages/super_admin/super_admin_controller.dart';
 
@@ -151,14 +152,22 @@ class _EntrepriseFormPageState extends State<DetailsCatProduit> {
     //
   }
 
-  void _updateProduit() {
+  void _updateStatsusProduit() {
     if (_formKey.currentState!.validate()) {
       final updatedProduit = {
+        // "logo": logo,
+        // "nom": nom,
+        // "routeCode": routeCode,
+        // "quantite": 0,
+        // "status": 1,
+        // "point": point,
+        // "idEntreprise": entreprise['id'],
+
         // "nomCategorie": _nomCategorieController.text,
         // "codeUnique": _codeUniqueController.text,
         // "valeurPoints": int.tryParse(_valeurPointsController.text) ?? 0,
-        "utilise": _utilise,
-        "idEntreprise": int.tryParse(_idEntrepriseController.text),
+        "status": _utilise,
+        //"idEntreprise": int.tryParse(_idEntrepriseController.text),
       };
 
       // TODO : Envoyer updatedProduit à ton backend (via http PUT/POST)
@@ -267,75 +276,44 @@ class _EntrepriseFormPageState extends State<DetailsCatProduit> {
 
                 const SizedBox(height: 20),
 
-                ElevatedButton(
-                  onPressed: _updateProduit,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF25D366),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    maximumSize: Size(250, 40),
-                    minimumSize: Size(250, 40),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: const Text(
-                    "Mettre à jour",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                ElevatedButton(
-                  onPressed: _updateProduit,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 168, 10, 10),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    maximumSize: Size(250, 40),
-                    minimumSize: Size(250, 40),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: const Text(
-                    "Supprimer",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
+                // ElevatedButton(
+                //   onPressed: _updateProduit,
+                //   style: ElevatedButton.styleFrom(
+                //     backgroundColor: const Color(0xFF25D366),
+                //     padding: const EdgeInsets.symmetric(vertical: 14),
+                //     maximumSize: Size(250, 40),
+                //     minimumSize: Size(250, 40),
+                //     shape: RoundedRectangleBorder(
+                //       borderRadius: BorderRadius.circular(8),
+                //     ),
+                //   ),
+                //   child: const Text(
+                //     "Mettre à jour",
+                //     style: TextStyle(color: Colors.white),
+                //   ),
+                // ),
+                // const SizedBox(height: 12),
+                // ElevatedButton(
+                //   onPressed: _updateProduit,
+                //   style: ElevatedButton.styleFrom(
+                //     backgroundColor: const Color.fromARGB(255, 168, 10, 10),
+                //     padding: const EdgeInsets.symmetric(vertical: 14),
+                //     maximumSize: Size(250, 40),
+                //     minimumSize: Size(250, 40),
+                //     shape: RoundedRectangleBorder(
+                //       borderRadius: BorderRadius.circular(8),
+                //     ),
+                //   ),
+                //   child: const Text(
+                //     "Supprimer",
+                //     style: TextStyle(color: Colors.white),
+                //   ),
+                // ),
               ],
             ),
           ),
           // Contenu principal
-          Expanded(
-            child: Column(
-              children: [
-                // Header
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 15,
-                  ),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFF7F7F7),
-                    border: Border(
-                      bottom: BorderSide(color: Colors.black12, width: 1),
-                    ),
-                  ),
-                  alignment: Alignment.centerLeft,
-                  child: const Text(
-                    "Liste de produits",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                ),
-
-                // Formulaire
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(20),
-                    child: Container(),
-                  ),
-                ),
-              ],
-            ),
-          ),
+          Expanded(child: ItemsPage(widget.produitCat!)),
         ],
       ),
     );

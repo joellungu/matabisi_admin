@@ -19,7 +19,7 @@ class _EntrepriseFormPageState extends State<NouveauCatProduit> {
 
   String nom = "";
   String secteur = "";
-  String email = "";
+  String description = "";
   String routeCode = "";
   String point = "";
   Uint8List? logo;
@@ -63,16 +63,14 @@ class _EntrepriseFormPageState extends State<NouveauCatProduit> {
       _formKey.currentState!.save();
 
       // Ici tu envoies les données à ton API
-      print("Nom: $nom, Secteur: $secteur, Email: $email");
+      print("Nom: $nom, Secteur: $secteur, Email: $description");
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Entreprise enregistrée ✅")));
       /**
        * */
       Map e = {
         "logo": logo,
         "nom": nom,
+        "description": description,
         "routeCode": routeCode,
         "quantite": 0,
         "status": 1,
@@ -95,7 +93,7 @@ class _EntrepriseFormPageState extends State<NouveauCatProduit> {
       setState(() {
         nom = "";
         secteur = "";
-        email = "";
+        description = "";
         routeCode = "";
         logo = null;
       });
@@ -181,6 +179,13 @@ class _EntrepriseFormPageState extends State<NouveauCatProduit> {
                             (val) => nom = val!,
                             initial: nom,
                           ),
+                          const SizedBox(height: 15),
+                          _textField(
+                            "Description du produit",
+                            (val) => description = val!,
+                            initial: description,
+                          ),
+                          //
                           const SizedBox(height: 15),
                           _textField(
                             "Point",

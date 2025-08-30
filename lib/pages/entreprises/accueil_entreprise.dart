@@ -1,7 +1,14 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:matabisi_admin/pages/entreprises/cat_produits.dart';
 import 'package:matabisi_admin/pages/super_admin/nouvelle_entreprise2.dart';
+import 'package:http/http.dart' as http;
+import 'package:matabisi_admin/utils/requete.dart';
+
+import 'entreprise_controller.dart';
 
 class AccueilEntreprise extends StatefulWidget {
   @override
@@ -13,6 +20,11 @@ class _AdminDashboardState extends State<AccueilEntreprise> {
   final List<Widget> _pages = [CatProduits(), UsersPage(), PurchasesPage()];
   var box = GetStorage();
   Map entreprise = {};
+  //
+  Requete requete = Requete();
+  //
+  EntrepriseController entrepriseController = Get.find();
+  //
 
   void _onItemTapped(int index) {
     setState(() {
@@ -84,9 +96,36 @@ class _AdminDashboardState extends State<AccueilEntreprise> {
                         ),
                       ),
                       SizedBox(height: 10),
-                      _buildStatItem('Entreprises', '12'),
-                      _buildStatItem('Utilisateurs', '1,542'),
-                      _buildStatItem('Achats aujourd\'hui', '247'),
+                      _buildStatItem('Taux', '10 Pts = 0.1 \$'),
+                      Obx(
+                        () => _buildStatItem(
+                          'Produits',
+                          "${entrepriseController.produits.length}",
+                        ),
+                      ),
+                      Obx(
+                        () => _buildStatItem(
+                          'Catégorie',
+                          '${entrepriseController.produitCategories.length}',
+                        ),
+                      ),
+                      FutureBuilder(
+                        future: getAllProduits(entreprise['id']),
+                        builder: (c, t) {
+                          //
+                          if (t.hasData) {
+                            Map compteEnt = t.data as Map;
+                            //
+                            return _buildStatItem(
+                              'Compte',
+                              '${compteEnt['soldePoints']} Pts',
+                            );
+                          } else if (t.hasError) {
+                            return _buildStatItem('Compte', '0 Pts');
+                          }
+                          return _buildStatItem('Compte', '-0 Pts');
+                        },
+                      ),
                     ],
                   ),
                 ),
@@ -99,6 +138,27 @@ class _AdminDashboardState extends State<AccueilEntreprise> {
         ],
       ),
     );
+  }
+
+  Future<Map> getAllProduits(int idEntreprise) async {
+    //
+    Map user = box.read("user") ?? {};
+    //idEntreprise
+    http.Response response = await requete.getE(
+      "api/Compte/entreprise/$idEntreprise",
+      //user['token'],
+    );
+    //
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      //
+      print("SUCCES: ${response.statusCode}");
+      print("SUCCES: ${response.body}");
+      return jsonDecode(response.body);
+    } else {
+      print("ERREUR: ${response.statusCode}");
+      print("ERREUR: ${response.body}");
+      return {};
+    }
   }
 
   Widget _buildSidebarItem(IconData icon, String title, int index) {

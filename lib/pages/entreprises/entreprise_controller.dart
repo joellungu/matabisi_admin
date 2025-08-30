@@ -14,6 +14,8 @@ class EntrepriseController extends GetxController with StateMixin<List> {
   //
   RxList produitCategories = [].obs;
   //
+  RxList produits = [].obs;
+  //
   var box = GetStorage();
   //
   enregistrerEntreprise(Map ent) async {
@@ -40,6 +42,50 @@ class EntrepriseController extends GetxController with StateMixin<List> {
   }
 
   //
+  supprimerProduit(int id) async {
+    //
+    http.Response response = await requete.deleteE(
+      "produit-categories/$id",
+      //user['token'],
+    );
+    //
+    if (response.statusCode == 200 ||
+        response.statusCode == 201 ||
+        response.statusCode == 202 ||
+        response.statusCode == 203 ||
+        response.statusCode == 204) {
+      Get.snackbar("Succès", "Le produit a été supprimé.");
+      getAllEntreprises();
+    } else {
+      print("ERREUR: ${response.statusCode}");
+      print("ERREUR: ${response.body}");
+      Get.snackbar("Oups", "Nous n'avons pas pu supprimer ce produit");
+    }
+    //
+  }
+
+  //
+  changerStatusProduit(int id, int status) async {
+    //
+    http.Response response = await requete.putEs(
+      "produit-categories/status/$id",
+      status,
+      //user['token'],
+    );
+    //
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      Get.snackbar(
+        "Succès",
+        "Le produit a été ${status == 1 ? 'Activé' : 'Desactivé'}.",
+      );
+      getAllEntreprises();
+    } else {
+      Get.snackbar("Oups", "Nous n'avons pas pu supprimer ce produit");
+    }
+    //
+  }
+
+  //
   getAllEntreprises() async {
     //
     Map user = box.read("user") ?? {};
@@ -58,6 +104,48 @@ class EntrepriseController extends GetxController with StateMixin<List> {
       print("ERREUR: ${response.statusCode}");
       print("ERREUR: ${response.body}");
       produitCategories.value = [];
+    }
+  }
+
+  getAllProduits(int idEntreprise, String nomCategorie) async {
+    //
+    Map user = box.read("user") ?? {};
+    //idEntreprise
+    http.Response response = await requete.getE(
+      "api/produit/all/$idEntreprise/$nomCategorie",
+      //user['token'],
+    );
+    //
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      //
+      print("SUCCES: ${response.statusCode}");
+      print("SUCCES: ${response.body}");
+      produits.value = jsonDecode(response.body);
+    } else {
+      print("ERREUR: ${response.statusCode}");
+      print("ERREUR: ${response.body}");
+      produits.value = [];
+    }
+  }
+
+  getSupprimerProduit(int id, int idEntreprise, String nomCategorie) async {
+    //
+    Map user = box.read("user") ?? {};
+    //idEntreprise
+    http.Response response = await requete.deleteE(
+      "api/produit/$id",
+      //user['token'],
+    );
+    //
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      //
+      print("SUCCES: ${response.statusCode}");
+      print("SUCCES: ${response.body}");
+      getAllProduits(idEntreprise, nomCategorie);
+    } else {
+      print("ERREUR: ${response.statusCode}");
+      print("ERREUR: ${response.body}");
+      Get.snackbar("Oups", "Nous n'avons pas pu supprimer ce produit.");
     }
   }
 }
