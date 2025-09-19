@@ -71,7 +71,6 @@ class EntrepriseListPage extends StatelessWidget {
                       entreprise = e;
                     },
                     leading: CircleAvatar(
-                      key: UniqueKey(),
                       backgroundColor: Colors.grey.shade300,
                       backgroundImage: NetworkImage(
                         "${Requete.url}/api/Entreprise/logo/${e['id']}",
@@ -169,7 +168,7 @@ class EntrepriseListPage extends StatelessWidget {
                           if (s == 2) {
                             titre.value = "Compte";
                             //
-                            vue.value = DetailsCompte(entreprise);
+                            //vue.value = DetailsCompte(entreprise: entreprise);
                           }
                           if (s == 3) {
                             titre.value = "Statistique";

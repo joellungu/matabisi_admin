@@ -1,8 +1,6 @@
 import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:matabisi_admin/pages/super_admin/super_admin_controller.dart';
 
 class EntrepriseUpdateForm extends StatefulWidget {
   final Map<String, dynamic> entreprise; // JSON reçu du backend
@@ -21,8 +19,6 @@ class _EntrepriseUpdateFormState extends State<EntrepriseUpdateForm> {
   int status = 1;
 
   Uint8List? logoBytes; // Pour stocker le fichier image sélectionné
-  //
-  SuperAdminController superAdminController = Get.find();
 
   @override
   void initState() {
@@ -72,11 +68,9 @@ class _EntrepriseUpdateFormState extends State<EntrepriseUpdateForm> {
       "secteur": secteurController.text,
       "email": emailController.text,
       "motDePasse": motDePasseController.text,
-      //"status": status,
+      "status": status,
       "logo": logoBytes, // envoyée comme byte[]
     };
-
-    superAdminController.miseajourProduit(widget.entreprise["id"], updated);
 
     // TODO: Envoyer updated au backend via Dio ou http
     print("Mise à jour : $updated");

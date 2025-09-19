@@ -2,30 +2,27 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
-import 'package:matabisi_admin/pages/entreprises/cat_produits.dart';
-import 'package:matabisi_admin/pages/entreprises/transaction_entreprise.dart';
 import 'package:matabisi_admin/pages/super_admin/nouvelle_entreprise2.dart';
+import 'package:matabisi_admin/pages/super_admin/super_admin_controller.dart';
 import 'package:http/http.dart' as http;
 import 'package:matabisi_admin/utils/requete.dart';
 
-import 'entreprise_controller.dart';
-
-class AccueilEntreprise extends StatefulWidget {
+class AdminDashboard extends StatefulWidget {
   @override
   _AdminDashboardState createState() => _AdminDashboardState();
 }
 
-class _AdminDashboardState extends State<AccueilEntreprise> {
+class _AdminDashboardState extends State<AdminDashboard> {
   int _selectedIndex = 0;
-  final List<Widget> _pages = [CatProduits(), TransactionEntreprise()];
-  var box = GetStorage();
-  Map entreprise = {};
+  final List<Widget> _pages = [
+    EntrepriseFormPage(),
+    UsersPage(),
+    PurchasesPage(),
+  ];
   //
   Requete requete = Requete();
   //
-  EntrepriseController entrepriseController = Get.find();
-  //
+  SuperAdminController superAdminController = Get.find();
 
   void _onItemTapped(int index) {
     setState(() {
@@ -34,21 +31,12 @@ class _AdminDashboardState extends State<AccueilEntreprise> {
   }
 
   @override
-  void initState() {
-    //
-    entreprise = box.read("user") ?? {};
-    //
-    super.initState();
-    //
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
         title: Text(
-          'Admin - ${entreprise['nom']} • ${entreprise['secteur']}',
+          'Admin - Plateforme',
           style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
         ),
         backgroundColor: const Color(0xFF111B21), // const Color(0xFF128C7E),
@@ -57,6 +45,81 @@ class _AdminDashboardState extends State<AccueilEntreprise> {
           IconButton(icon: Icon(Icons.notifications), onPressed: () {}),
           IconButton(icon: Icon(Icons.account_circle), onPressed: () {}),
         ],
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(color: const Color(0xFF128C7E)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CircleAvatar(
+                    backgroundColor: Colors.white,
+                    radius: 30,
+                    child: Icon(
+                      Icons.person,
+                      size: 30,
+                      color: const Color(0xFF128C7E),
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    'Administrateur',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    'admin@platform.com',
+                    style: TextStyle(color: Colors.white70),
+                  ),
+                ],
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.business, color: const Color(0xFF128C7E)),
+              title: Text('Entreprises'),
+              onTap: () {
+                _onItemTapped(0);
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.people, color: const Color(0xFF128C7E)),
+              title: Text('Utilisateurs'),
+              onTap: () {
+                _onItemTapped(1);
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: Icon(
+                Icons.shopping_cart,
+                color: const Color(0xFF128C7E),
+              ),
+              title: Text('Achats'),
+              onTap: () {
+                _onItemTapped(2);
+                Navigator.pop(context);
+              },
+            ),
+            Divider(),
+            ListTile(
+              leading: Icon(Icons.settings, color: Colors.grey),
+              title: Text('Paramètres'),
+              onTap: () {},
+            ),
+            ListTile(
+              leading: Icon(Icons.exit_to_app, color: Colors.grey),
+              title: Text('Déconnexion'),
+              onTap: () {},
+            ),
+          ],
+        ),
       ),
       body: Row(
         children: [
@@ -78,9 +141,9 @@ class _AdminDashboardState extends State<AccueilEntreprise> {
                     ),
                   ),
                 ),
-                _buildSidebarItem(Icons.business, 'Produits', 0),
+                _buildSidebarItem(Icons.business, 'Entreprises', 0),
                 //_buildSidebarItem(Icons.people, 'Utilisateurs', 1),
-                _buildSidebarItem(Icons.shopping_cart, 'Rapports', 1),
+                _buildSidebarItem(Icons.shopping_cart, 'Achats', 2),
                 Spacer(),
                 Divider(),
                 Padding(
@@ -100,33 +163,29 @@ class _AdminDashboardState extends State<AccueilEntreprise> {
                       _buildStatItem('Taux', '10 Pts = 0.1 \$'),
                       Obx(
                         () => _buildStatItem(
-                          'Produits',
-                          "${entrepriseController.produits.length}",
+                          'Entreprises',
+                          '${superAdminController.entreprises.length}',
                         ),
                       ),
-                      Obx(
-                        () => _buildStatItem(
-                          'Catégorie',
-                          '${entrepriseController.produitCategories.length}',
-                        ),
-                      ),
+                      //_buildStatItem('Utilisateurs', '1,542'),
                       FutureBuilder(
-                        future: getAllProduits(entreprise['id']),
+                        future: getAllUtilisateurs(),
                         builder: (c, t) {
                           //
                           if (t.hasData) {
-                            Map compteEnt = t.data as Map;
+                            int compteEnt = t.data as int;
                             //
                             return _buildStatItem(
-                              'Compte',
-                              '${compteEnt['soldePoints']} Pts',
+                              'Utilisateurs',
+                              '$compteEnt Uts',
                             );
                           } else if (t.hasError) {
-                            return _buildStatItem('Compte', '0 Pts');
+                            return _buildStatItem('Utilisateurs', '0 Uts');
                           }
-                          return _buildStatItem('Compte', '-0 Pts');
+                          return _buildStatItem('Utilisateurs', '-0 Uts');
                         },
                       ),
+                      _buildStatItem('Achats aujourd\'hui', '247'),
                     ],
                   ),
                 ),
@@ -141,12 +200,11 @@ class _AdminDashboardState extends State<AccueilEntreprise> {
     );
   }
 
-  Future<Map> getAllProduits(int idEntreprise) async {
+  //
+  Future<int> getAllUtilisateurs() async {
     //
-    Map user = box.read("user") ?? {};
-    //idEntreprise
     http.Response response = await requete.getE(
-      "api/Compte/entreprise/$idEntreprise",
+      "api/Client/nombre",
       //user['token'],
     );
     //
@@ -158,7 +216,7 @@ class _AdminDashboardState extends State<AccueilEntreprise> {
     } else {
       print("ERREUR: ${response.statusCode}");
       print("ERREUR: ${response.body}");
-      return {};
+      return 0;
     }
   }
 

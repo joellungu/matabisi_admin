@@ -1,28 +1,22 @@
 import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:matabisi_admin/pages/super_admin/super_admin_controller.dart';
 
-class EntrepriseUpdateForm extends StatefulWidget {
+class DetailsCompte extends StatefulWidget {
   final Map<String, dynamic> entreprise; // JSON reçu du backend
 
-  const EntrepriseUpdateForm({super.key, required this.entreprise});
+  const DetailsCompte({super.key, required this.entreprise});
 
   @override
-  State<EntrepriseUpdateForm> createState() => _EntrepriseUpdateFormState();
+  State<DetailsCompte> createState() => _EntrepriseUpdateFormState();
 }
 
-class _EntrepriseUpdateFormState extends State<EntrepriseUpdateForm> {
+class _EntrepriseUpdateFormState extends State<DetailsCompte> {
   late TextEditingController nomController;
   late TextEditingController secteurController;
-  late TextEditingController emailController;
-  late TextEditingController motDePasseController;
   int status = 1;
 
   Uint8List? logoBytes; // Pour stocker le fichier image sélectionné
-  //
-  SuperAdminController superAdminController = Get.find();
 
   @override
   void initState() {
@@ -30,12 +24,6 @@ class _EntrepriseUpdateFormState extends State<EntrepriseUpdateForm> {
     nomController = TextEditingController(text: widget.entreprise["nom"] ?? "");
     secteurController = TextEditingController(
       text: widget.entreprise["secteur"] ?? "",
-    );
-    emailController = TextEditingController(
-      text: widget.entreprise["email"] ?? "",
-    );
-    motDePasseController = TextEditingController(
-      text: widget.entreprise["motDePasse"] ?? "",
     );
     status = widget.entreprise["status"] ?? 1;
 
@@ -47,8 +35,6 @@ class _EntrepriseUpdateFormState extends State<EntrepriseUpdateForm> {
   void dispose() {
     nomController.dispose();
     secteurController.dispose();
-    emailController.dispose();
-    motDePasseController.dispose();
     super.dispose();
   }
 
@@ -70,13 +56,9 @@ class _EntrepriseUpdateFormState extends State<EntrepriseUpdateForm> {
       "id": widget.entreprise["id"],
       "nom": nomController.text,
       "secteur": secteurController.text,
-      "email": emailController.text,
-      "motDePasse": motDePasseController.text,
-      //"status": status,
+      "status": status,
       "logo": logoBytes, // envoyée comme byte[]
     };
-
-    superAdminController.miseajourProduit(widget.entreprise["id"], updated);
 
     // TODO: Envoyer updated au backend via Dio ou http
     print("Mise à jour : $updated");
@@ -107,7 +89,7 @@ class _EntrepriseUpdateFormState extends State<EntrepriseUpdateForm> {
             mainAxisSize: MainAxisSize.min,
             children: [
               const Text(
-                "Mettre à jour l'entreprise",
+                "Mettre à jour le compte",
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
@@ -160,26 +142,6 @@ class _EntrepriseUpdateFormState extends State<EntrepriseUpdateForm> {
                 ),
               ),
               const SizedBox(height: 12),
-
-              TextField(
-                controller: emailController,
-                decoration: const InputDecoration(
-                  labelText: "Email",
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 12),
-
-              TextField(
-                controller: motDePasseController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: "Mot de passe",
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 12),
-
               DropdownButtonFormField<int>(
                 value: status,
                 decoration: const InputDecoration(

@@ -89,10 +89,17 @@ class SuperAdminController extends GetxController {
     //
     Map user = box.read("user") ?? {};
     //
-    http.Response response = await requete.getEe(
+    print("Token: ${user['token']}");
+    //
+    http.Response response = await requete.getE(
       "api/Entreprise/all",
-      user['token'],
+      //user['token'],
     );
+    //
+    // http.Response response = await requete.getEe(
+    //   "api/Entreprise/all",
+    //   user['token'],
+    // );
     //
     if (response.statusCode == 200 || response.statusCode == 201) {
       //
@@ -150,24 +157,6 @@ class SuperAdminController extends GetxController {
         "Oups",
         "Nous n'avons pas pu  ${status == 1 ? 'Activé' : 'Desactivé'} cette entreprise.",
       );
-    }
-    //
-  }
-
-  //
-  miseajourProduit(int id, Map ent) async {
-    //
-    http.Response response = await requete.putE(
-      "api/Entreprise/$id",
-      ent,
-      //user['token'],
-    );
-    //
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      Get.snackbar("Succès", "L'entreprise a été mise à jour.");
-      getAllEntreprises();
-    } else {
-      Get.snackbar("Oups", "Nous n'avons pas était mise à jour.");
     }
     //
   }

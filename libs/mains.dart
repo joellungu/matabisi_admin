@@ -4,20 +4,17 @@ import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:matabisi_admin/pages/entreprises/entreprise_controller.dart';
 import 'package:matabisi_admin/pages/login.dart';
-import 'package:matabisi_admin/pages/super_admin/compte_controller.dart';
 import 'package:matabisi_admin/pages/super_admin/nouvelle_entreprise2.dart';
 import 'package:matabisi_admin/pages/super_admin/super_admin_accueil.dart';
 import 'package:matabisi_admin/pages/super_admin/super_admin_controller.dart';
 
-void main() async {
+void mains() async {
   WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init();
   //
   Get.put(SuperAdminController());
   //
   Get.put(EntrepriseController());
-  //
-  Get.put(CompteController());
   //
   runApp(const MyApp());
 }
