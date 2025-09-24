@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:matabisi_admin/pages/entreprises/cat_produits.dart';
+import 'package:matabisi_admin/pages/entreprises/parametres_entreprise.dart';
 import 'package:matabisi_admin/pages/entreprises/transaction_entreprise.dart';
 import 'package:matabisi_admin/pages/super_admin/nouvelle_entreprise2.dart';
 import 'package:http/http.dart' as http;
@@ -18,7 +19,11 @@ class AccueilEntreprise extends StatefulWidget {
 
 class _AdminDashboardState extends State<AccueilEntreprise> {
   int _selectedIndex = 0;
-  final List<Widget> _pages = [CatProduits(), TransactionEntreprise()];
+  final List<Widget> _pages = [
+    CatProduits(),
+    TransactionEntreprise(),
+    ParametresEntreprise(),
+  ];
   var box = GetStorage();
   Map entreprise = {};
   //
@@ -81,6 +86,7 @@ class _AdminDashboardState extends State<AccueilEntreprise> {
                 _buildSidebarItem(Icons.business, 'Produits', 0),
                 //_buildSidebarItem(Icons.people, 'Utilisateurs', 1),
                 _buildSidebarItem(Icons.shopping_cart, 'Rapports', 1),
+                _buildSidebarItem(Icons.settings, 'Parametres', 2),
                 Spacer(),
                 Divider(),
                 Padding(

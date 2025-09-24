@@ -1,16 +1,19 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 import 'dart:typed_data';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
-import 'package:excel/excel.dart';
+// import 'package:excel/excel.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:matabisi_admin/pages/entreprises/entreprise_controller.dart';
+import 'package:matabisi_admin/utils/produit.dart';
 import 'package:matabisi_admin/utils/requete.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
+import 'package:http/http.dart' as http;
 
 class Item {
   final String keyUnique;
@@ -70,6 +73,13 @@ class _ItemsPageState extends State<ItemsPage> {
     });
   }
 
+  /////////////////////////////////////////////////////////////
+  List<Produit> produits = [];
+  int page = 0;
+  bool isLoading = false;
+  bool hasMore = true;
+  /////////////////////////////////////////////////////////////
+
   void _deleteItem(int idItem) {
     setState(() {
       //
@@ -81,6 +91,33 @@ class _ItemsPageState extends State<ItemsPage> {
     });
   }
 
+  //
+  Future<void> fetchProduits() async {
+    if (isLoading || !hasMore) return;
+    setState(() => isLoading = true);
+
+    final response = await http.get(
+      Uri.parse(
+        "${Requete.url}/api/produit/all/${widget.produitCat['idEntreprise']}/${widget.produitCat['nom']}?page=$page",
+      ),
+    );
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = jsonDecode(response.body);
+      List<Produit> newProduits =
+          data.map((json) => Produit.fromJson(json)).toList();
+
+      setState(() {
+        page++;
+        produits.addAll(newProduits);
+        isLoading = false;
+        if (newProduits.length < 20) hasMore = false;
+      });
+    } else {
+      setState(() => isLoading = false);
+    }
+  }
+
   @override
   void initState() {
     //
@@ -88,6 +125,11 @@ class _ItemsPageState extends State<ItemsPage> {
       widget.produitCat['idEntreprise'],
       widget.produitCat['nom'],
     );
+    //
+    Timer(const Duration(seconds: 1), () {
+      //
+      //fetchProduits();
+    });
     //
     super.initState();
     //
@@ -109,72 +151,68 @@ class _ItemsPageState extends State<ItemsPage> {
       body: Column(
         children: [
           Expanded(
-            child: SingleChildScrollView(
-              child: Obx(
-                () => DataTable(
-                  columns: const [
-                    DataColumn(label: Text("QrCode")),
-                    DataColumn(label: Text("Clé Unique")),
-                    DataColumn(label: Text("Utilisé")),
-                    DataColumn(label: Text("Actions")),
-                  ],
-                  rows:
-                      entrepriseController.produits.map((item) {
-                        //Map p = entrepriseController.produits[];
-                        return DataRow(
-                          cells: [
-                            DataCell(
-                              InkWell(
-                                onTap: () {
-                                  //
-                                  Get.dialog(
-                                    Center(
-                                      child: Container(
-                                        height: 300,
-                                        width: 300,
-                                        color: Colors.white,
-                                        child: PrettyQrView.data(
-                                          data: item['codeUnique'],
-                                          decoration: const PrettyQrDecoration(
-                                            // image: PrettyQrDecorationImage(
-                                            //   image: AssetImage('images/flutter.png'),
-                                            // ),
-                                            quietZone:
-                                                PrettyQrQuietZone.standart,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                },
-                                child: PrettyQrView.data(
-                                  data: item['codeUnique'],
-                                  decoration: const PrettyQrDecoration(
-                                    // image: PrettyQrDecorationImage(
-                                    //   image: AssetImage('images/flutter.png'),
-                                    // ),
-                                    quietZone: PrettyQrQuietZone.standart,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            DataCell(Text(item['codeUnique'])),
-                            DataCell(Text(item['utilise'] ? "Oui" : "Non")),
-                            DataCell(
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.delete,
-                                  color: Colors.red,
-                                ),
-                                onPressed: () => _deleteItem(item['id']),
-                              ),
-                            ),
-                          ],
-                        );
-                      }).toList(),
-                ),
-              ),
+            child: ProduitPage(
+              widget.produitCat['idEntreprise'],
+              widget.produitCat['nom'],
             ),
+            // child: SingleChildScrollView(
+            //   child: Obx(
+            //     () => DataTable(
+            //       columns: const [
+            //         DataColumn(label: Text("QrCode")),
+            //         DataColumn(label: Text("Clé Unique")),
+            //         DataColumn(label: Text("Utilisé")),
+            //         DataColumn(label: Text("Actions")),
+            //       ],
+            //       rows:
+            //           entrepriseController.produits.map((item) {
+            //             //Map p = entrepriseController.produits[];
+            //             return DataRow(
+            //               cells: [
+            //                 DataCell(
+            //                   InkWell(
+            //                     onTap: () {
+            //                       //
+            //                       Get.dialog(
+            //                         Center(
+            //                           child: Container(
+            //                             height: 300,
+            //                             width: 300,
+            //                             color: Colors.white,
+            //                             child: PrettyQrView.data(
+            //                               data: item['codeUnique'],
+            //                               decoration: const PrettyQrDecoration(
+            //                                 // image: PrettyQrDecorationImage(
+            //                                 //   image: AssetImage('images/flutter.png'),
+            //                                 // ),
+            //                                 quietZone:
+            //                                     PrettyQrQuietZone.standart,
+            //                               ),
+            //                             ),
+            //                           ),
+            //                         ),
+            //                       );
+            //                     },
+            //                     child: Text(""),
+            //                   ),
+            //                 ),
+            //                 DataCell(Text(item['codeUnique'])),
+            //                 DataCell(Text(item['utilise'] ? "Oui" : "Non")),
+            //                 DataCell(
+            //                   IconButton(
+            //                     icon: const Icon(
+            //                       Icons.delete,
+            //                       color: Colors.red,
+            //                     ),
+            //                     onPressed: () => _deleteItem(item['id']),
+            //                   ),
+            //                 ),
+            //               ],
+            //             );
+            //           }).toList(),
+            //     ),
+            //   ),
+            // ),
           ),
           SizedBox(
             width: double.infinity,
@@ -190,21 +228,58 @@ class _ItemsPageState extends State<ItemsPage> {
                 //
                 List<Map<String, dynamic>> items = await pickAndLoadExcelKeys();
                 //
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
+                Get.dialog(
+                  Center(
+                    child: Card(
+                      elevation: 1,
+                      child: Container(
+                        height: 250,
+                        width: 300,
+                        padding: EdgeInsets.all(20),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            Text("Nombre de ticket à générer"),
+                            TextField(
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide(
+                                    color: Colors.grey,
+                                    width: 0.5,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                //
+                                Get.back();
+                                //
+                                showModalBottomSheet(
+                                  context: context,
+                                  isScrollControlled: true,
 
-                  builder: (c) {
-                    return SizedBox(
-                      height: Get.height / 1.3,
-                      width: 300,
-                      child: UploadPage(
-                        items,
-                        widget.produitCat['idEntreprise'],
-                        widget.produitCat['nom'],
+                                  builder: (c) {
+                                    return SizedBox(
+                                      height: Get.height / 1.3,
+                                      width: 300,
+                                      child: UploadPage(
+                                        items,
+                                        widget.produitCat['idEntreprise'],
+                                        widget.produitCat['nom'],
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
+                              child: Text("Envoyer"),
+                            ),
+                          ],
+                        ),
                       ),
-                    );
-                  },
+                    ),
+                  ),
                 );
               },
               child: const Text(
@@ -224,11 +299,14 @@ class _ItemsPageState extends State<ItemsPage> {
 
   Future<List<Map<String, dynamic>>> pickAndLoadExcelKeys() async {
     // Ouvre un explorateur pour choisir le fichier Excel
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['xlsx'],
-    );
+    // final result = await FilePicker.platform.pickFiles(
+    //   type: FileType.custom,
+    //   allowedExtensions: ['xlsx'],
+    // );
 
+    CodeGenerator codeGenerator = CodeGenerator();
+    //
+    final result = codeGenerator.generateCodes(1000);
     // if (result != null) {
     //   setState(() {
     //     logo = result.files.first.bytes;
@@ -237,38 +315,41 @@ class _ItemsPageState extends State<ItemsPage> {
 
     if (result != null) {
       //File file = File(result.files.single.path!);
-      Uint8List? bytes = result.files.first.bytes;
+      //Uint8List? bytes = result.files.first.bytes;
       try {
         // Décoder le fichier Excel
-        final excel = Excel.decodeBytes(bytes!);
+        //final excel = Excel.decodeBytes(bytes!);
         //
-        print("Excel: $excel");
+        //print("Excel: $excel");
 
         // Récupérer la première feuille
-        final sheet = excel.tables.keys.first;
-        final table = excel.tables[sheet];
+        // final sheet = excel.tables.keys.first;
+        // final table = excel.tables[sheet];
 
-        // Extraire les valeurs de la première colonne
-        List<String> keys = [];
+        // // Extraire les valeurs de la première colonne
+        // List<String> keys = [];
+        //
         List<Map<String, dynamic>> prods = [];
-        if (table != null) {
-          for (var row in table.rows.skip(1)) {
+        //
+
+        final updatedAt = DateTime.now().toIso8601String();
+        //
+        if (result.isNotEmpty) {
+          for (String code in result) {
             // skip(1) pour ignorer l’en-tête
-            if (row.isNotEmpty && row[0] != null) {
-              keys.add(row[0]!.value.toString());
-              //
-              prods.add({
-                "nomCategorie": widget.produitCat["nom"],
-                "codeUnique": row[0]!.value.toString(),
-                "valeurPoints": widget.produitCat["point"],
-                "utilise": false,
-                "idEntreprise": widget.produitCat["idEntreprise"],
-              });
-            }
+
+            prods.add({
+              "nomCategorie": widget.produitCat["nom"],
+              "codeUnique": code,
+              "valeurPoints": widget.produitCat["point"],
+              "utilise": false,
+              "idEntreprise": widget.produitCat["idEntreprise"],
+              "updatedAt": updatedAt,
+            });
           }
         }
         //
-        print("Execl liste: $prods");
+        //print("Execl liste: $prods");
 
         return prods;
       } catch (e) {
@@ -392,6 +473,152 @@ class _UploadPageState extends State<UploadPage> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class CodeGenerator {
+  //
+  final int codeLength;
+  //
+  final Random _random = Random();
+  //
+  final Set<String> _usedCodes = {};
+  //
+  CodeGenerator({this.codeLength = 8}); // longueur du code (par défaut 8)
+
+  /// Génère [count] codes uniques
+  List<String> generateCodes(int count) {
+    List<String> codes = [];
+    //
+    DateTime now = DateTime.now();
+    //
+    String year = now.year.toString().substring(
+      2,
+    ); // prend seulement les 2 derniers chiffres
+    String month = now.month.toString().padLeft(2, '0');
+    String day = now.day.toString().padLeft(2, '0');
+    String hour = now.hour.toString().padLeft(2, '0');
+    String minute = now.minute.toString().padLeft(2, '0');
+    String second = now.second.toString().padLeft(2, '0');
+
+    while (codes.length < count) {
+      String code = _generateRandomCode();
+      if (_usedCodes.add(code)) {
+        codes.add("$year$month$day$hour$minute$second$code");
+      }
+      // sinon, il est déjà utilisé => on continue
+    }
+
+    return codes;
+  }
+
+  /// Génère un code aléatoire
+  String _generateRandomCode() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    return List.generate(
+      codeLength,
+      (index) => chars[_random.nextInt(chars.length)],
+    ).join();
+  }
+}
+
+class ProduitPage extends StatefulWidget {
+  //
+  int idEntreprise;
+  String nom;
+  //
+  ProduitPage(this.idEntreprise, this.nom, {Key? key}) : super(key: key);
+  //
+  @override
+  _ProduitPageState createState() => _ProduitPageState();
+}
+
+class _ProduitPageState extends State<ProduitPage> {
+  List<Produit> produits = [];
+  int page = 0;
+  bool isLoading = false;
+  bool hasMore = true;
+
+  Future<void> fetchProduits() async {
+    if (isLoading || !hasMore) return;
+    setState(() => isLoading = true);
+
+    final response = await http.get(
+      Uri.parse(
+        "${Requete.url}/api/produit/all/${widget.idEntreprise}/${widget.nom}?page=$page",
+      ),
+    );
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = jsonDecode(response.body);
+      List<Produit> newProduits =
+          data.map((json) => Produit.fromJson(json)).toList();
+
+      setState(() {
+        page++;
+        produits.addAll(newProduits);
+        isLoading = false;
+        if (newProduits.length < 20) hasMore = false;
+      });
+    } else {
+      setState(() => isLoading = false);
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchProduits();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Produits")),
+      body: ListView.builder(
+        itemCount: produits.length + 1,
+        itemBuilder: (context, index) {
+          if (index < produits.length) {
+            final p = produits[index];
+            return ListTile(
+              title: Text(p.nomCategorie),
+              subtitle: RichText(
+                text: TextSpan(
+                  text: "${p.codeUnique} \n",
+                  style: TextStyle(
+                    color: Colors.blue,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  children: [
+                    TextSpan(
+                      text: "${p.valeurPoints} Pt",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // TextSpan(
+              //   "Code: ${p.codeUnique} - Points: ${p.valeurPoints}",
+              // ),
+            );
+          } else {
+            // Loader à la fin
+            if (hasMore) {
+              // on décale l'appel de fetchProduits après le build courant
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                fetchProduits();
+              });
+              return Center(child: CircularProgressIndicator());
+            } else {
+              return Center(child: Text("Fin de la liste"));
+            }
+          }
+        },
       ),
     );
   }

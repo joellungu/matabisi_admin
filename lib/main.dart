@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:matabisi_admin/pages/entreprises/entreprise_controller.dart';
 import 'package:matabisi_admin/pages/login.dart';
 import 'package:matabisi_admin/pages/super_admin/compte_controller.dart';
@@ -12,6 +13,9 @@ import 'package:matabisi_admin/pages/super_admin/super_admin_controller.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init();
+  //
+  // Initialise les données de date pour le français
+  await initializeDateFormatting('fr_FR', null);
   //
   Get.put(SuperAdminController());
   //

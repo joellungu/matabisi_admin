@@ -119,7 +119,7 @@ class EntrepriseController extends GetxController with StateMixin<List> {
     if (response.statusCode == 200 || response.statusCode == 201) {
       //
       print("SUCCES: ${response.statusCode}");
-      print("SUCCES: ${response.body}");
+      //print("SUCCES: ${response.body}");
       produits.value = jsonDecode(response.body);
     } else {
       print("ERREUR: ${response.statusCode}");

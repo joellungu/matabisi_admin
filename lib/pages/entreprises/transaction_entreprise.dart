@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:matabisi_admin/utils/requete.dart';
+//
+import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 
 class TransactionEntreprise extends StatefulWidget {
   const TransactionEntreprise({super.key});
@@ -15,6 +20,8 @@ class _TransactionPageState extends State<TransactionEntreprise> {
   String? _type;
   String? _dateDebut;
   String? _dateFin;
+  String? _dateDebut2;
+  String? _dateFin2;
   final TextEditingController _phoneCtrl = TextEditingController();
 
   List<dynamic> transactions = [];
@@ -45,21 +52,27 @@ class _TransactionPageState extends State<TransactionEntreprise> {
 
     if (time == null) return;
 
-    final DateTime fullDateTime = DateTime(
+    DateTime fullDateTime = DateTime(
       date.year,
       date.month,
       date.day,
       time.hour,
       time.minute,
     );
+    String longDate = DateFormat(
+      'EEEE dd MMMM yyyy',
+      'fr_FR',
+    ).format(fullDateTime);
 
-    final String formatted = formatter.format(fullDateTime);
+    String formatted = formatter.format(fullDateTime);
 
     setState(() {
       if (isStart) {
         _dateDebut = formatted;
+        _dateDebut2 = longDate;
       } else {
         _dateFin = formatted;
+        _dateFin2 = longDate;
       }
     });
   }
@@ -133,22 +146,75 @@ class _TransactionPageState extends State<TransactionEntreprise> {
                   ),
 
                   const SizedBox(height: 12),
-                  Text(
-                    "Date Début: ${_dateDebut ?? '-'}",
-                    style: TextStyle(color: Colors.green),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Date Début: ",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      Text(
+                        _dateDebut2 ?? '-',
+                        style: TextStyle(
+                          color: Colors.green,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
                   ElevatedButton(
                     onPressed: () => pickDateTime(isStart: true),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.teal, // couleur de fond
+                      foregroundColor: Colors.white, // couleur du texte
+                      maximumSize: Size(250, 45),
+                      minimumSize: Size(250, 45),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 14,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                          30,
+                        ), // bouton arrondi
+                      ),
+                      elevation: 6,
+                    ),
                     child: const Text("Choisir date début"),
                   ),
 
                   const SizedBox(height: 12),
-                  Text(
-                    "Date Fin: ${_dateFin ?? '-'}",
-                    style: TextStyle(color: Colors.green),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text("Date Fin: ", style: TextStyle(color: Colors.white)),
+                      Text(
+                        _dateFin2 ?? '-',
+                        style: TextStyle(
+                          color: Colors.green,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
                   ElevatedButton(
                     onPressed: () => pickDateTime(isStart: false),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.teal, // couleur de fond
+                      foregroundColor: Colors.white, // couleur du texte
+                      maximumSize: Size(250, 45),
+                      minimumSize: Size(250, 45),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 14,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                          30,
+                        ), // bouton arrondi
+                      ),
+                      elevation: 6,
+                    ),
                     child: const Text("Choisir date fin"),
                   ),
 
@@ -164,6 +230,47 @@ class _TransactionPageState extends State<TransactionEntreprise> {
                     onPressed: fetchTransactions,
                     icon: const Icon(Icons.search),
                     label: const Text("Rechercher"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.teal, // couleur de fond
+                      foregroundColor: Colors.white, // couleur du texte
+                      maximumSize: Size(250, 45),
+                      minimumSize: Size(250, 45),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 14,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                          30,
+                        ), // bouton arrondi
+                      ),
+                      elevation: 6,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton.icon(
+                    onPressed: () async {
+                      //
+                      Get.to(MapZonesPage());
+                    },
+                    icon: const Icon(Icons.location_on),
+                    label: const Text("Carte map"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.teal, // couleur de fond
+                      foregroundColor: Colors.white, // couleur du texte
+                      maximumSize: Size(250, 45),
+                      minimumSize: Size(250, 45),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 14,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                          30,
+                        ), // bouton arrondi
+                      ),
+                      elevation: 6,
+                    ),
                   ),
                 ],
               ),
@@ -272,4 +379,116 @@ class _TransactionPageState extends State<TransactionEntreprise> {
       ),
     );
   }
+}
+
+class MapZonesPage extends StatelessWidget {
+  const MapZonesPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // Exemple de zones avec un score de concentration
+    final List<ZoneData> zones = [
+      ZoneData(
+        points: [
+          LatLng(-4.32, 15.30),
+          LatLng(-4.33, 15.31),
+          LatLng(-4.34, 15.29),
+        ],
+        color: Colors.red.withOpacity(0.4),
+        borderColor: Colors.red,
+        score: 45,
+      ),
+      ZoneData(
+        points: [
+          LatLng(-4.33, 15.33),
+          LatLng(-4.34, 15.34),
+          LatLng(-4.35, 15.32),
+        ],
+        color: Colors.green.withOpacity(0.4),
+        borderColor: Colors.green,
+        score: 12,
+      ),
+    ];
+
+    return Scaffold(
+      appBar: AppBar(title: const Text("Carte avec zones")),
+      body: FlutterMap(
+        options: MapOptions(
+          initialCenter: LatLng(-4.325, 15.322), // Kinshasa par ex.
+          initialZoom: 13,
+        ),
+        children: [
+          TileLayer(
+            urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+            userAgentPackageName: 'com.example.app',
+          ),
+          // Polygones colorés
+          PolygonLayer(
+            polygons:
+                zones.map((zone) {
+                  return Polygon(
+                    points: zone.points,
+                    color: zone.color,
+                    borderStrokeWidth: 2,
+                    borderColor: zone.borderColor,
+                  );
+                }).toList(),
+          ),
+          // Ajout des chiffres au centre des zones
+          MarkerLayer(
+            markers:
+                zones.map((zone) {
+                  final center = _getPolygonCenter(zone.points);
+                  return Marker(
+                    point: center,
+                    width: 50,
+                    height: 50,
+                    child: Container(
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.8),
+                        shape: BoxShape.circle,
+                        border: Border.all(color: zone.borderColor, width: 2),
+                      ),
+                      child: Text(
+                        "${zone.score}",
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Calcule le centre approximatif d’un polygone
+  LatLng _getPolygonCenter(List<LatLng> points) {
+    double lat = 0;
+    double lng = 0;
+    for (var p in points) {
+      lat += p.latitude;
+      lng += p.longitude;
+    }
+    return LatLng(lat / points.length, lng / points.length);
+  }
+}
+
+class ZoneData {
+  final List<LatLng> points;
+  final Color color;
+  final Color borderColor;
+  final int score;
+
+  ZoneData({
+    required this.points,
+    required this.color,
+    required this.borderColor,
+    required this.score,
+  });
 }

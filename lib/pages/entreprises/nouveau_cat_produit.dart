@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -158,7 +159,7 @@ class _EntrepriseFormPageState extends State<NouveauCatProduit> {
                   ),
                   alignment: Alignment.centerLeft,
                   child: const Text(
-                    "Ajouter une entreprise",
+                    "Ajouter un produit",
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
