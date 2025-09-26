@@ -9,6 +9,7 @@ import 'package:matabisi_admin/pages/super_admin/compte_controller.dart';
 import 'package:matabisi_admin/pages/super_admin/nouvelle_entreprise2.dart';
 import 'package:matabisi_admin/pages/super_admin/super_admin_accueil.dart';
 import 'package:matabisi_admin/pages/super_admin/super_admin_controller.dart';
+import 'package:matabisi_admin/utils/paiement_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,6 +23,8 @@ void main() async {
   Get.put(EntrepriseController());
   //
   Get.put(CompteController());
+  //
+  Get.put(PaiementController());
   //
   runApp(const MyApp());
 }

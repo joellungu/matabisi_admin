@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:matabisi_admin/pages/login.dart';
 import 'package:matabisi_admin/pages/super_admin/nouvelle_entreprise2.dart';
+import 'package:matabisi_admin/pages/super_admin/publicite_page.dart';
 import 'package:matabisi_admin/pages/super_admin/super_admin_controller.dart';
 import 'package:http/http.dart' as http;
 import 'package:matabisi_admin/pages/super_admin/transactions.dart';
@@ -16,7 +17,11 @@ class AdminDashboard extends StatefulWidget {
 
 class _AdminDashboardState extends State<AdminDashboard> {
   int _selectedIndex = 0;
-  final List<Widget> _pages = [EntrepriseFormPage(), TransactionPage()];
+  final List<Widget> _pages = [
+    EntrepriseFormPage(),
+    TransactionPage(),
+    PublicitePage(),
+  ];
   //
   Requete requete = Requete();
   //
@@ -147,6 +152,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 _buildSidebarItem(Icons.business, 'Entreprises', 0),
                 //_buildSidebarItem(Icons.people, 'Utilisateurs', 1),
                 _buildSidebarItem(Icons.shopping_cart, 'Transaction', 1),
+                _buildSidebarItem(Icons.announcement, 'Publicités', 2),
                 Spacer(),
                 Divider(),
                 Padding(

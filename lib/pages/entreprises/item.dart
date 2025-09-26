@@ -226,7 +226,7 @@ class _ItemsPageState extends State<ItemsPage> {
               ),
               onPressed: () async {
                 //
-                List<Map<String, dynamic>> items = await pickAndLoadExcelKeys();
+                TextEditingController nombre = TextEditingController();
                 //
                 Get.dialog(
                   Center(
@@ -241,6 +241,7 @@ class _ItemsPageState extends State<ItemsPage> {
                           children: [
                             Text("Nombre de ticket à générer"),
                             TextField(
+                              controller: nombre,
                               decoration: InputDecoration(
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10),
@@ -252,26 +253,70 @@ class _ItemsPageState extends State<ItemsPage> {
                               ),
                             ),
                             ElevatedButton(
-                              onPressed: () {
+                              onPressed: () async {
                                 //
-                                Get.back();
-                                //
-                                showModalBottomSheet(
-                                  context: context,
-                                  isScrollControlled: true,
-
-                                  builder: (c) {
-                                    return SizedBox(
-                                      height: Get.height / 1.3,
-                                      width: 300,
-                                      child: UploadPage(
-                                        items,
-                                        widget.produitCat['idEntreprise'],
-                                        widget.produitCat['nom'],
-                                      ),
-                                    );
-                                  },
+                                Get.dialog(
+                                  Center(
+                                    child: Container(
+                                      height: 30,
+                                      width: 30,
+                                      child: CircularProgressIndicator(),
+                                    ),
+                                  ),
                                 );
+                                //
+                                int pts =
+                                    (int.parse(nombre.text) *
+                                            widget.produitCat["point"])
+                                        .toInt();
+                                //
+                                bool v = await checkSolde(
+                                  widget.produitCat['idEntreprise'],
+                                  (pts * 0.01),
+                                );
+                                //
+                                if (v) {
+                                  //
+                                  List<Map<String, dynamic>> items =
+                                      await pickAndLoadExcelKeys(
+                                        int.parse(nombre.text),
+                                      );
+                                  //
+                                  Get.back();
+                                  //
+                                  Get.back();
+                                  //
+                                  //
+                                  showModalBottomSheet(
+                                    context: context,
+                                    isScrollControlled: true,
+
+                                    builder: (c) {
+                                      return SizedBox(
+                                        height: Get.height / 1.3,
+                                        width: 300,
+                                        child: UploadPage(
+                                          items,
+                                          widget.produitCat['idEntreprise'],
+                                          widget.produitCat['nom'],
+                                        ),
+                                      );
+                                    },
+                                  );
+                                } else {
+                                  Get.back();
+                                  //
+                                  Get.back();
+                                  //
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        "Vous n'avez pas assèz de crédit pour ajouter les produits. Veuillez recharger votre comptes.",
+                                      ),
+                                      backgroundColor: Colors.red.shade600,
+                                    ),
+                                  );
+                                }
                               },
                               child: Text("Envoyer"),
                             ),
@@ -295,9 +340,24 @@ class _ItemsPageState extends State<ItemsPage> {
       ),
     );
   }
-  //
 
-  Future<List<Map<String, dynamic>>> pickAndLoadExcelKeys() async {
+  //
+  Future<bool> checkSolde(int idEntreprise, double nombre) async {
+    final url = Uri.parse(
+      "${Requete.url}/credits/entreprise/$idEntreprise/check/$nombre",
+    );
+
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      // comme le backend retourne juste "true" ou "false"
+      return response.body.toLowerCase() == 'true';
+    } else {
+      throw Exception("Erreur lors de la vérification du solde");
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> pickAndLoadExcelKeys(int nombre) async {
     // Ouvre un explorateur pour choisir le fichier Excel
     // final result = await FilePicker.platform.pickFiles(
     //   type: FileType.custom,
@@ -306,7 +366,7 @@ class _ItemsPageState extends State<ItemsPage> {
 
     CodeGenerator codeGenerator = CodeGenerator();
     //
-    final result = codeGenerator.generateCodes(1000);
+    final result = codeGenerator.generateCodes(nombre);
     // if (result != null) {
     //   setState(() {
     //     logo = result.files.first.bytes;

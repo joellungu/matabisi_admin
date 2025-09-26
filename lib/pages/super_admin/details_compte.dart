@@ -14,7 +14,6 @@ class DetailsCompte extends GetView<CompteController> {
     controller.getCompte(entreprise["id"]);
 
     //soldePoints = TextEditingController(text: entreprise["soldePoints"] ?? "");
-
     // si le backend renvoie déjà un logo en base64, tu peux le décoder ici
     // logoBytes = base64Decode(widget.entreprise["logo"]);
   }

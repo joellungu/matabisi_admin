@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -6,6 +7,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:matabisi_admin/pages/entreprises/cat_produits.dart';
 import 'package:matabisi_admin/pages/entreprises/parametres_entreprise.dart';
 import 'package:matabisi_admin/pages/entreprises/transaction_entreprise.dart';
+import 'package:matabisi_admin/pages/login.dart';
 import 'package:matabisi_admin/pages/super_admin/nouvelle_entreprise2.dart';
 import 'package:http/http.dart' as http;
 import 'package:matabisi_admin/utils/requete.dart';
@@ -59,8 +61,13 @@ class _AdminDashboardState extends State<AccueilEntreprise> {
         backgroundColor: const Color(0xFF111B21), // const Color(0xFF128C7E),
         elevation: 0,
         actions: [
-          IconButton(icon: Icon(Icons.notifications), onPressed: () {}),
-          IconButton(icon: Icon(Icons.account_circle), onPressed: () {}),
+          //IconButton(icon: Icon(Icons.notifications), onPressed: () {}),
+          IconButton(
+            icon: Icon(Icons.exit_to_app),
+            onPressed: () {
+              Get.offAll(LoginScreen());
+            },
+          ),
         ],
       ),
       body: Row(

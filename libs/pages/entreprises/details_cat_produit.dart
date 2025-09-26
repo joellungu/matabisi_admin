@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:matabisi_admin/pages/entreprises/entreprise_controller.dart';
-import 'package:matabisi_admin/pages/entreprises/produits.dart';
+import 'package:matabisi_admin/pages/entreprises/item.dart';
 import 'package:matabisi_admin/pages/super_admin/liste_entreprise.dart';
 import 'package:matabisi_admin/pages/super_admin/super_admin_controller.dart';
 
