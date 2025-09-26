@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:matabisi_admin/pages/entreprises/frais_retrait.dart';
+import 'package:matabisi_admin/pages/entreprises/motdepasse_oublie.dart';
 import 'package:matabisi_admin/pages/entreprises/points_dash.dart';
 import 'package:matabisi_admin/pages/entreprises/transaction_entreprise.dart';
 import 'package:matabisi_admin/pages/entreprises/update_entreprise_page.dart';
@@ -93,6 +94,21 @@ class _ParametresEntreprise extends State<ParametresEntreprise> {
                       //
                       index.value = 3;
                       vue.value = PointsDashboard();
+                      //
+                      //vue.value = DetailsCatProduit(e, key: UniqueKey());
+                    },
+                  ),
+                  const SizedBox(height: 5),
+                  option(
+                    4,
+                    {
+                      "nom": "Mot de passe",
+                      "description": "Changement du mot de passe",
+                    },
+                    () {
+                      //
+                      index.value = 4;
+                      vue.value = PasswordChangeScreen();
                       //
                       //vue.value = DetailsCatProduit(e, key: UniqueKey());
                     },

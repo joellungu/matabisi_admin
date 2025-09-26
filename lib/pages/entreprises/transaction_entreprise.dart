@@ -419,8 +419,11 @@ class MapZonesPage extends StatelessWidget {
         ),
         children: [
           TileLayer(
-            urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-            userAgentPackageName: 'com.example.app',
+            urlTemplate:
+                "https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png",
+            //"https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+            subdomains: ['a', 'b', 'c'],
+            userAgentPackageName: 'com.example.matabisi_admin',
           ),
           // Polygones colorés
           PolygonLayer(
