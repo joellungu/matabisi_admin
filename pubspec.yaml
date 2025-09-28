@@ -45,6 +45,8 @@ dependencies:
   pretty_qr_code: ^3.5.0
   dio: ^5.9.0
   flutter_map: ^8.2.2
+  latlong2: ^0.9.1
+  collection:
   uuid:
 
 dev_dependencies:

@@ -3,7 +3,7 @@ import 'package:get/get.dart' as g;
 import 'package:http/http.dart' as http;
 
 class Requete extends g.GetConnect {
-  static String url = "http://192.168.1.66:8080";
+  static String url = "http://10.162.124.23:8080";
 
   Future<http.Response> postETicket(String path, Map e) async {
     return http

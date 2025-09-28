@@ -3,6 +3,9 @@ import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:intl/intl.dart';
+import 'package:matabisi_admin/utils/cluster_map.dart';
+import 'package:matabisi_admin/utils/data_converter.dart';
+import 'package:matabisi_admin/utils/point_data.dart';
 import 'package:matabisi_admin/utils/requete.dart';
 //
 import 'package:flutter/material.dart';
@@ -23,6 +26,7 @@ class _TransactionPageState extends State<TransactionEntreprise> {
   String? _dateDebut2;
   String? _dateFin2;
   final TextEditingController _phoneCtrl = TextEditingController();
+  List le = [];
 
   List<dynamic> transactions = [];
   bool loading = false;
@@ -30,6 +34,35 @@ class _TransactionPageState extends State<TransactionEntreprise> {
   int totalPoints = 0;
   int montant = 0;
   double valeurParPoint = 0.01;
+  //
+  final Map<String, LatLngBounds> _provinceBounds = {
+    'Kinshasa': LatLngBounds(LatLng(-4.9, 14.9), LatLng(-3.6, 15.7)),
+    'Kongo Central': LatLngBounds(LatLng(-6.5, 12.0), LatLng(-3.0, 15.2)),
+    'Kwango': LatLngBounds(LatLng(-9.5, 15.0), LatLng(-5.0, 19.5)),
+    'Kwilu': LatLngBounds(LatLng(-8.0, 16.5), LatLng(-4.0, 20.8)),
+    'Mai-Ndombe': LatLngBounds(LatLng(-6.0, 15.5), LatLng(-1.5, 20.5)),
+    'Kasaï': LatLngBounds(LatLng(-9.0, 19.5), LatLng(-4.0, 24.0)),
+    'Kasaï-Central': LatLngBounds(LatLng(-7.5, 21.0), LatLng(-4.2, 24.0)),
+    'Kasaï-Oriental': LatLngBounds(LatLng(-8.0, 22.5), LatLng(-5.5, 25.5)),
+    'Lomami': LatLngBounds(LatLng(-9.0, 22.5), LatLng(-5.5, 26.0)),
+    'Sankuru': LatLngBounds(LatLng(-6.0, 21.5), LatLng(-2.0, 25.0)),
+    'Lualaba': LatLngBounds(LatLng(-12.0, 23.5), LatLng(-9.0, 27.5)),
+    'Haut-Katanga': LatLngBounds(LatLng(-13.0, 24.5), LatLng(-9.0, 29.8)),
+    'Haut-Lomami': LatLngBounds(LatLng(-11.0, 23.0), LatLng(-8.0, 26.5)),
+    'Tanganyika': LatLngBounds(LatLng(-10.0, 25.5), LatLng(-5.5, 29.8)),
+    'Maniema': LatLngBounds(LatLng(-6.0, 24.5), LatLng(-2.0, 28.8)),
+    'Ituri': LatLngBounds(LatLng(0.5, 27.0), LatLng(3.5, 31.0)),
+    'Nord-Kivu': LatLngBounds(LatLng(-2.0, 28.5), LatLng(0.7, 30.8)),
+    'Sud-Kivu': LatLngBounds(LatLng(-5.0, 28.0), LatLng(-2.0, 29.7)),
+    'Tshopo': LatLngBounds(LatLng(-3.0, 22.5), LatLng(1.0, 27.0)),
+    'Bas-Uele': LatLngBounds(LatLng(1.5, 22.5), LatLng(4.8, 26.5)),
+    'Haut-Uele': LatLngBounds(LatLng(1.8, 26.5), LatLng(4.2, 31.0)),
+    'Équateur': LatLngBounds(LatLng(-1.0, 15.5), LatLng(3.0, 21.0)),
+    'Mongala': LatLngBounds(LatLng(1.5, 17.5), LatLng(3.0, 21.5)),
+    'Nord-Ubangi': LatLngBounds(LatLng(3.0, 16.5), LatLng(5.2, 20.2)),
+    'Sud-Ubangi': LatLngBounds(LatLng(2.8, 15.8), LatLng(4.8, 18.8)),
+    'Tshuapa': LatLngBounds(LatLng(-1.5, 18.5), LatLng(2.5, 23.0)),
+  };
   //
   var box = GetStorage();
 
@@ -96,6 +129,7 @@ class _TransactionPageState extends State<TransactionEntreprise> {
       print("Truc: ${response.data}");
       setState(() {
         List c = response.data;
+        le = c;
         //totalPoints = c.reduce((a, b) => a['valeur'] + b['valeur']);
         c.forEach((x) {
           //
@@ -251,7 +285,10 @@ class _TransactionPageState extends State<TransactionEntreprise> {
                   ElevatedButton.icon(
                     onPressed: () async {
                       //
-                      Get.to(MapZonesPage());
+                      //Get.to(MapZonesPage());
+                      //
+                      _showProvinceList();
+                      //
                     },
                     icon: const Icon(Icons.location_on),
                     label: const Text("Carte map"),
@@ -346,6 +383,59 @@ class _TransactionPageState extends State<TransactionEntreprise> {
     );
   }
 
+  //
+  void _showProvinceList() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        final provinces = _provinceBounds.keys.toList()..sort();
+        return ListView.builder(
+          itemCount: provinces.length,
+          itemBuilder: (context, index) {
+            final name = provinces[index];
+            LatLngBounds valeur = _provinceBounds[name]!;
+            return ListTile(
+              title: Text(name),
+              onTap: () {
+                Get.back();
+                //
+                // l = [
+                //   {
+                //     "id": 1,
+                //     "type": "GAIN",
+                //     "valeur": 3,
+                //     "date": "2025-09-23T21:16:37.089803",
+                //     "clientPhone": "+243815381693",
+                //     "idProduit": 1000,
+                //     "idEntreprise": 1,
+                //     "lon": 15.2743104,
+                //     "lat": -4.3361212,
+                //   },
+                //   {
+                //     "id": 51,
+                //     "type": "GAIN",
+                //     "valeur": 3,
+                //     "date": "2025-09-24T20:05:22.836572",
+                //     "clientPhone": "+243815381693",
+                //     "idProduit": 1,
+                //     "idEntreprise": 1,
+                //     "lon": 15.2743187,
+                //     "lat": -4.3361143,
+                //   },
+                // ];
+                //
+                List<PointData> points = DataConverter.fromMapList(le);
+                //
+                Get.to(ClusterMap(points: points));
+                //Get.to(MapZonesPage(name, valeur));
+              },
+            );
+          },
+        );
+      },
+    );
+  }
+
   Widget _buildStatCard(String title, String value, IconData icon) {
     return Expanded(
       child: Card(
@@ -382,7 +472,11 @@ class _TransactionPageState extends State<TransactionEntreprise> {
 }
 
 class MapZonesPage extends StatelessWidget {
-  const MapZonesPage({super.key});
+  String nom;
+  LatLngBounds map;
+  MapZonesPage(this.nom, this.map, {super.key});
+  //
+  final MapController _mapController = MapController();
 
   @override
   Widget build(BuildContext context) {
@@ -413,17 +507,22 @@ class MapZonesPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text("Carte avec zones")),
       body: FlutterMap(
+        //mapController: _mapController,
         options: MapOptions(
           initialCenter: LatLng(-4.325, 15.322), // Kinshasa par ex.
+          cameraConstraint: CameraConstraint.containCenter(bounds: map),
           initialZoom: 13,
+          //interactiveFlags: InteractiveFlag.all,
         ),
         children: [
           TileLayer(
             urlTemplate:
                 "https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png",
             //"https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-            subdomains: ['a', 'b', 'c'],
-            userAgentPackageName: 'com.example.matabisi_admin',
+            //subdomains: ['a', 'b', 'c'],
+            //userAgentPackageName: 'com.example.matabisi_admin',
+            subdomains: const ['a', 'b', 'c'],
+            tileProvider: NetworkTileProvider(),
           ),
           // Polygones colorés
           PolygonLayer(
